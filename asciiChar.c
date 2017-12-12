@@ -1,27 +1,47 @@
-#import <stdio.h>
+#include <stdio.h>
 
+#define ASCII_MAX 256
+#define DECIMAL_LEN 3
+#define DECIMAL_BASE 10
 
-/* NOT WORKING, as only checks if the next int will make the value
-go above 255. Go back to char[3] version and add a 'sep' argument*/
-int main()
+char getASCII(int length, int base, int (*approveChar)(char));
+int approveDecimal(char c);
+
+int main(int argc, char **argv)
 {
-  char rawReadChar;
-  char chrCode;
-  int chrBuffer = 0;
-  int charIsDecimal;
+  char ascii;
+  while ((ascii=getASCII(DECIMAL_LEN,DECIMAL_BASE,&approveDecimal))!=EOF){
+    putchar(ascii);
+  }
+  putchar('\n');
+  return 0;
+}
 
-  while ((rawReadChar=getchar())!=EOF){
-    rawReadChar -= '0';
-    charIsDecimal = (rawReadChar>=0 && rawReadChar<=9) ? 1 : 0;
-    if (!(charIsDecimal)){
+char getASCII(int length, int base, int (*approveChar)(char))
+{
+  int i=0;
+  char ascii = 0;
+  char c;
+  for(;;){
+    c = getchar();
+    if (c==EOF){
+      return EOF;
+    }
+    if (!(approveChar(c))){
       continue;
     }
-    chrBuffer = (chrBuffer*10) + rawReadChar;
-    if (chrBuffer>255){
-      putchar(chrCode);
-      chrBuffer = rawReadChar;
+    ascii = ascii*base + (c-'0');
+    if (++i == length){
+      break;
     }
-    chrCode = chrBuffer;
+  }
+  return (ascii%ASCII_MAX);
+}
+
+int approveDecimal(char c)
+{
+  if (c>='0' && c<='9'){
+    return 1;
   }
   return 0;
 }
